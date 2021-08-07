@@ -8,6 +8,10 @@ class GlobalState {
   setExecutableCallback(callback) {
     this.executableCallback = callback;
   }
+
+  removeExecutableCallback() {
+    this.executableCallback = null;
+  }
 }
 
 const globalState = new GlobalState();

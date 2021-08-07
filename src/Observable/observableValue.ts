@@ -1,4 +1,5 @@
 import { AnyFunction } from "../types";
+import globalState from "../globalState";
 
 class ObservableValue {
   private readonly observers = [];
@@ -15,6 +16,11 @@ class ObservableValue {
   }
 
   get() {
+    const executableCallback = globalState.getExecutableCallback();
+    if (executableCallback && !this.isObserver(executableCallback)) {
+      this.observe(executableCallback);
+    }
+
     return this.value;
   }
 
@@ -24,6 +30,14 @@ class ObservableValue {
 
   unobserve(callback: AnyFunction) {
     this.observers.splice(this.observers.indexOf(callback), 1);
+  }
+
+  private isObserver(callback: AnyFunction) {
+    return this.findObserver(callback);
+  }
+
+  private findObserver(callback: AnyFunction) {
+    return this.observers.find((observer) => observer === callback);
   }
 
   private executeObservers() {
