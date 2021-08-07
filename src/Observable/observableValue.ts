@@ -6,13 +6,12 @@ class ObservableValue {
   constructor(private value: any) {}
 
   set(value: any) {
+    this.value = value;
     try {
       this.executeObservers();
     } catch (e) {
       console.log(e);
     }
-
-    this.value = value;
   }
 
   @ExecutableCallback
