@@ -1,4 +1,5 @@
 import { Reaction } from "../Reaction";
+import globalState from "../globalState";
 
 describe("reaction", () => {
   test("reaction is defined", () => {
@@ -10,5 +11,12 @@ describe("reaction", () => {
     const reaction = new Reaction(callback);
     reaction.run();
     expect(callback).toBeCalled();
+  });
+
+  test("callback must be in global state, when run is executed", () => {
+    const callback = jest.fn();
+    const reaction = new Reaction(callback);
+    reaction.run();
+    expect(globalState.getExecutableCallback()).toEqual(callback);
   });
 });
