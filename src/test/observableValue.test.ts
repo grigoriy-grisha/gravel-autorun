@@ -28,4 +28,13 @@ describe("observableValue", () => {
     observedValue.set(2);
     expect(callback).toBeCalledTimes(2);
   });
+
+  test("observer callback should not be called", () => {
+    const callback = jest.fn();
+    const observedValue = observableValue(0);
+    observedValue.observe(callback);
+    observedValue.unobserve(callback);
+    observedValue.set(2);
+    expect(callback).not.toBeCalled();
+  });
 });

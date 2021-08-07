@@ -22,6 +22,10 @@ class ObservableValue {
     this.observers.push(callback);
   }
 
+  unobserve(callback: AnyFunction) {
+    this.observers.splice(this.observers.indexOf(callback), 1);
+  }
+
   private executeObservers() {
     this.observers.forEach((observer) => observer());
   }
