@@ -1,5 +1,5 @@
 import { AnyFunction } from "../types";
-import globalState from "../globalState";
+import { ExecutableCallback } from "../decorators/ExecutableCallback";
 
 class ObservableValue {
   private readonly observers: AnyFunction[] = [];
@@ -15,11 +15,8 @@ class ObservableValue {
     this.value = value;
   }
 
-  //todo нужен декоратор для отлавливания executableCallback
+  @ExecutableCallback
   get() {
-    const executableCallback = globalState.getExecutableCallback();
-    if (executableCallback) this.observe(executableCallback);
-
     return this.value;
   }
 
