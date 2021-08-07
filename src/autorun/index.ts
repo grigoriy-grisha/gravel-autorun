@@ -1,2 +1,3 @@
-export type AnyFunction = (...args: any) => any;
+import { AnyFunction } from "../types";
+
 export function autorun(callback: AnyFunction) {}
