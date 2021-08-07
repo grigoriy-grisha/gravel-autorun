@@ -6,6 +6,10 @@ export class Reaction {
 
   run() {
     globalState.setExecutableCallback(this.callback);
-    this.callback();
+    try {
+      this.callback();
+    } catch (e) {
+      globalState.removeExecutableCallback();
+    }
   }
 }
