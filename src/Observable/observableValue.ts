@@ -15,11 +15,10 @@ class ObservableValue {
     this.value = value;
   }
 
+  //todo нужен декоратор для отлавливания executableCallback
   get() {
     const executableCallback = globalState.getExecutableCallback();
-    if (executableCallback && !this.isObserver(executableCallback)) {
-      this.observe(executableCallback);
-    }
+    if (executableCallback) this.observe(executableCallback);
 
     return this.value;
   }
@@ -30,14 +29,6 @@ class ObservableValue {
 
   unobserve(callback: AnyFunction) {
     this.observers.splice(this.observers.indexOf(callback), 1);
-  }
-
-  private isObserver(callback: AnyFunction) {
-    return this.findObserver(callback);
-  }
-
-  private findObserver(callback: AnyFunction) {
-    return this.observers.find((observer) => observer === callback);
   }
 
   private executeObservers() {
