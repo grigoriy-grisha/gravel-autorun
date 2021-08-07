@@ -11,6 +11,6 @@ describe("autorun", () => {
     const callback = jest.fn(() => observerValue.get());
     autorun(callback);
     observerValue.set(2);
-    expect(callback).toBeCalled();
+    expect(callback).toBeCalledTimes(2);
   });
 });

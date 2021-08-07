@@ -9,7 +9,8 @@ export class Reaction {
     try {
       this.callback();
     } catch (e) {
-      globalState.removeExecutableCallback();
+      console.log(e);
     }
+    globalState.removeExecutableCallback();
   }
 }

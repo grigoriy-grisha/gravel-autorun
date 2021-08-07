@@ -2,10 +2,10 @@ import { AnyFunction } from "../types";
 import globalState from "../globalState";
 
 class ObservableValue {
-  private readonly observers = [];
+  private readonly observers: AnyFunction[] = [];
   constructor(private value: any) {}
 
-  set(value) {
+  set(value: any) {
     try {
       this.executeObservers();
     } catch (e) {

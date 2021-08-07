@@ -1,6 +1,7 @@
 import { Reaction } from "../Reaction";
 import globalState from "../globalState";
 
+//todo треюуется рефакторинг тестов
 describe("reaction", () => {
   test("reaction is defined", () => {
     expect(Reaction).toBeDefined();
@@ -14,9 +15,12 @@ describe("reaction", () => {
   });
 
   test("callback must be in global state, when run is executed", () => {
-    const callback = jest.fn();
+    globalState.removeExecutableCallback();
+    const callback = jest.fn(() => {
+      expect(globalState.getExecutableCallback()).toBeDefined();
+    });
     const reaction = new Reaction(callback);
     reaction.run();
-    expect(globalState.getExecutableCallback()).toEqual(callback);
+    expect(globalState.getExecutableCallback()).toBeNull();
   });
 });
