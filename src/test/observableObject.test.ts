@@ -10,12 +10,4 @@ describe("observableObject", () => {
     observerObject.user = "Ann";
     expect(observerObject.user).toBe("Ann");
   });
-
-  test("callback should be called", () => {
-    const callback = jest.fn();
-    const observerObject = observableObject({ user: "Andrew" });
-    observerObject.observe(callback);
-    observerObject.user = "Ann";
-    expect(callback).toBeCalled();
-  });
 });
