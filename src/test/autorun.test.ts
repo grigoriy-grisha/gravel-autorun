@@ -22,4 +22,20 @@ describe("autorun", () => {
     observerObject.user = "Ann";
     expect(callback).toBeCalledTimes(2);
   });
+
+  test("autorun with nested observableObject", () => {
+    const observerObject = observableObject({
+      user: {
+        name: "Andrew",
+        address: {
+          street: "Pushkin's",
+        },
+      },
+    });
+
+    const callback = jest.fn(() => observerObject.user.address.street);
+    autorun(callback);
+    observerObject.user.address.street = "Sadovya";
+    expect(callback).toBeCalledTimes(2);
+  });
 });

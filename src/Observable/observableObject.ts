@@ -9,16 +9,20 @@ export class ObservableObject<T extends object> {
   private readonly observers: AnyFunction[] = [];
   constructor(private target: T) {}
 
-  set(target: T, property: PropertyKey, value: any) {
-    const success = Reflect.set(this.target, property, value);
+  set(target: T, property: keyof T, value: any): boolean {
+    const success = Reflect.set(target, property, value);
     if (success) this.executeObservers();
     return success;
   }
 
-  get(target: T, property: keyof T) {
+  get(target: T, property: keyof T): T[keyof T] {
+    if (typeof target[property] === "object" && this.target[property] !== null) {
+      return new Proxy(target[property] as any, this);
+    }
+
     const executableCallback = globalState.getExecutableCallback();
     if (executableCallback) this.observe(executableCallback);
-    return this.target[property];
+    return target[property];
   }
 
   observe(callback: AnyFunction) {
