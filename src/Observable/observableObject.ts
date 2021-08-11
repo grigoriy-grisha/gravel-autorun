@@ -4,7 +4,7 @@ import { entries, fromEntries } from "../utils";
 
 const $gravelReactive = Symbol("gravelReactive");
 
-export type ObservableValues<T extends object> = { [key in keyof T | string]: ObservableValue };
+export type ObservableValues<T extends object> = { [key in keyof T | string]: ObservableValue<T> };
 
 export class ObservableObject<T extends object> {
   private readonly _values: ObservableValues<T> = {} as ObservableValues<T>;
@@ -24,7 +24,7 @@ export class ObservableObject<T extends object> {
     return true;
   }
 
-  get(target: T, property: keyof T): T[keyof T] {
+  get(target: T, property: keyof T): T[keyof T] | T {
     const observableValue = this._getValue(property);
     return observableValue.get();
   }

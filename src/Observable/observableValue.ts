@@ -1,16 +1,16 @@
 import { AnyFunction } from "../types";
 import globalState from "../globalState";
-import { isPrimitive, isPureObject } from "../utils";
+import { isPrimitive, isPureObject, toPrimitive } from "../utils";
 import { observableObject } from "./observableObject";
 
-export class ObservableValue {
+export class ObservableValue<T extends any> {
   private readonly observers: AnyFunction[] = [];
-  constructor(private value: any) {
+  constructor(private value: T) {
     if (isPrimitive(value)) this.value = value;
     if (isPureObject(value)) this.value = observableObject(value);
   }
 
-  set(value: any) {
+  set(value: T) {
     this.value = value;
     try {
       this.executeObservers();
@@ -19,7 +19,7 @@ export class ObservableValue {
     }
   }
 
-  get() {
+  get(): T {
     const executableCallback = globalState.getExecutableCallback();
     if (executableCallback) this.observe(executableCallback);
     return this.value;
@@ -31,6 +31,22 @@ export class ObservableValue {
 
   unobserve(callback: AnyFunction) {
     this.observers.splice(this.observers.indexOf(callback), 1);
+  }
+
+  toJSON() {
+    return this.get();
+  }
+
+  toString() {
+    return `${ObservableValue}[${this.value}]`;
+  }
+
+  valueOf(): T {
+    return toPrimitive(this.get());
+  }
+
+  [Symbol.toPrimitive]() {
+    return this.valueOf();
   }
 
   private executeObservers() {
