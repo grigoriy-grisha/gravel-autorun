@@ -38,4 +38,41 @@ describe("autorun", () => {
     observerObject.user.address.street = "Sadovya";
     expect(callback).toBeCalledTimes(2);
   });
+
+  test("everyone value in observable object should be isolated", () => {
+    const observerObject = observableObject({
+      user: {
+        name: "Andrew",
+        address: {
+          street: "Pushkin's",
+        },
+      },
+    });
+
+    const callback = jest.fn(() => observerObject.user.name);
+    autorun(callback);
+    const callback2 = jest.fn(() => observerObject.user.address.street);
+    autorun(callback2);
+    observerObject.user.address.street = "Sadovya";
+    expect(callback).toBeCalledTimes(1);
+    expect(callback2).toBeCalledTimes(2);
+  });
+
+  test("changed object should be reactive", () => {
+    const observerObject = observableObject({
+      user: {
+        name: "Andrew",
+        address: {
+          street: "Pushkin's",
+        },
+      },
+    });
+
+    const callback = jest.fn(() => observerObject.user.address);
+    autorun(callback);
+
+    // @ts-ignore
+    observerObject.user.address = "changed";
+    expect(callback).toBeCalledTimes(2);
+  });
 });
