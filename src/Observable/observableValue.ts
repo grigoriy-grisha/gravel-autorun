@@ -1,9 +1,14 @@
 import { AnyFunction } from "../types";
 import globalState from "../globalState";
+import { isPrimitive, isPureObject } from "../utils";
+import { observableObject } from "./observableObject";
 
-class ObservableValue {
+export class ObservableValue {
   private readonly observers: AnyFunction[] = [];
-  constructor(private value: any) {}
+  constructor(private value: any) {
+    if (isPrimitive(value)) this.value = value;
+    if (isPureObject(value)) this.value = observableObject(value);
+  }
 
   set(value: any) {
     this.value = value;

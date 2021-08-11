@@ -1,2 +1,8 @@
 export type AnyFunction = (...args: any) => any;
-export type Primitives = string | number;
+
+export type CommonlyConstructors =
+  | StringConstructor
+  | NumberConstructor
+  | FunctionConstructor
+  | ArrayConstructor
+  | ObjectConstructor;
