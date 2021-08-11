@@ -30,3 +30,7 @@ export function isPureObject(arg: any): arg is Record<string, any> {
 export function isPrimitive(arg: any): arg is string | number {
   return isString(arg) || isNumber(arg);
 }
+
+export function toPrimitive(value: any) {
+  return value === null ? null : typeof value === "object" ? "" + value : value;
+}
