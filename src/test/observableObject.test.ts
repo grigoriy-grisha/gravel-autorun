@@ -50,7 +50,24 @@ describe("observableObject", () => {
 
     // @ts-ignore
     observerObject.user.address = "changed";
-
     expect(observerObject.user.address).toBe("changed");
+  });
+
+  test("delete value has been success", () => {
+    const observerObject = observableObject({
+      user: {
+        name: "Andrew",
+        address: {
+          street: "Pushkin's",
+        },
+      },
+    });
+
+    // @ts-ignore
+    delete observerObject.user;
+    expect(observerObject.user).toBe(undefined);
+    // @ts-ignore
+    delete observerObject.user;
+    expect(observerObject).toStrictEqual({});
   });
 });
