@@ -57,6 +57,7 @@ function delegateProxy<Target extends object>(target: Target): Target {
   return new Proxy(target, new ObjectHandlers());
 }
 
+//todo обработать добавление нового значения
 export function observableObject<Target extends object>(target: Target): Target {
   defineProperty(target, $gravelReactive, {
     enumerable: false,
