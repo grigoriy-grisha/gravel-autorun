@@ -1,12 +1,9 @@
 import defineProperty = Reflect.defineProperty;
 import { ObservableValue } from "./observableValue";
-import { entries, fromEntries } from "../utils";
-import { TargetValue, TargetWithReactiveSymbol } from "../types";
+import { transformEach } from "../utils";
+import { ObservableValues, TargetValue, TargetWithReactiveSymbol } from "../types";
 
 export const $gravelReactive = Symbol("gravelReactive");
-
-export type ObservableValues<T extends object> = { [key in keyof T | string]: ObservableValue<T> };
-
 export class ObservableObject<Target extends object> {
   private readonly _values: ObservableValues<Target> = {} as ObservableValues<Target>;
   static create<Target extends object>(target: Target): ObservableObject<Target> {
@@ -14,9 +11,9 @@ export class ObservableObject<Target extends object> {
   }
 
   constructor(private target: Target) {
-    this._values = fromEntries(
-      entries(target).map(([key, value]) => [key, new ObservableValue(value)]),
-    ) as ObservableValues<Target>;
+    this._values = transformEach(target)(([key, value]) => ({
+      [key]: new ObservableValue(value),
+    })) as ObservableValues<Target>;
   }
 
   set(target: Target, property: keyof Target, value: any): boolean {
@@ -25,14 +22,14 @@ export class ObservableObject<Target extends object> {
     return true;
   }
 
-  get(target: Target, property: keyof Target): Target[keyof Target] | Target {
+  get(target: Target, property: keyof Target): TargetValue<Target> | Target {
     const observableValue = this._getValue(property);
     return observableValue.get();
   }
 
   deleteProperty(target: Target, property: keyof Target) {
     const observableValue = this._getValue(property);
-    observableValue._executeObservers();
+    observableValue._notifyObservers();
     return Reflect.deleteProperty(target, property);
   }
 
