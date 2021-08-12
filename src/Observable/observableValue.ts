@@ -13,7 +13,7 @@ export class ObservableValue<T extends any> {
   set(value: T) {
     this.value = value;
     try {
-      this.executeObservers();
+      this._executeObservers();
     } catch (e) {
       console.log(e);
     }
@@ -49,7 +49,7 @@ export class ObservableValue<T extends any> {
     return this.valueOf();
   }
 
-  private executeObservers() {
+  _executeObservers() {
     this.observers.forEach((observer) => observer());
   }
 }

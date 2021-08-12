@@ -1,59 +1,71 @@
 import defineProperty = Reflect.defineProperty;
 import { ObservableValue } from "./observableValue";
 import { entries, fromEntries } from "../utils";
+import { TargetValue, TargetWithReactiveSymbol } from "../types";
 
-const $gravelReactive = Symbol("gravelReactive");
+export const $gravelReactive = Symbol("gravelReactive");
 
 export type ObservableValues<T extends object> = { [key in keyof T | string]: ObservableValue<T> };
 
-export class ObservableObject<T extends object> {
-  private readonly _values: ObservableValues<T> = {} as ObservableValues<T>;
-  static create<T extends object>(target: T): ObservableObject<T> {
+export class ObservableObject<Target extends object> {
+  private readonly _values: ObservableValues<Target> = {} as ObservableValues<Target>;
+  static create<Target extends object>(target: Target): ObservableObject<Target> {
     return new ObservableObject(target);
   }
 
-  constructor(private target: T) {
+  constructor(private target: Target) {
     this._values = fromEntries(
       entries(target).map(([key, value]) => [key, new ObservableValue(value)]),
-    ) as ObservableValues<T>;
+    ) as ObservableValues<Target>;
   }
 
-  set(target: T, property: keyof T, value: any): boolean {
+  set(target: Target, property: keyof Target, value: any): boolean {
     const observableValue = this._getValue(property);
     observableValue.set(value);
     return true;
   }
 
-  get(target: T, property: keyof T): T[keyof T] | T {
+  get(target: Target, property: keyof Target): Target[keyof Target] | Target {
     const observableValue = this._getValue(property);
     return observableValue.get();
   }
 
-  _getValue(property: keyof T) {
+  deleteProperty(target: Target, property: keyof Target) {
+    const observableValue = this._getValue(property);
+    observableValue._executeObservers();
+    return Reflect.deleteProperty(target, property);
+  }
+
+  _getValue(property: keyof Target) {
     return this._values[property];
   }
 }
 
-function delegateProxy<T extends object>(target: T): T {
-  return new Proxy(target, {
-    get(target: T, property: PropertyKey, receiver: any): any {
-      // @ts-ignore
-      return (target[$gravelReactive] as ObservableObject).get(target, property, receiver);
-    },
-    set(target: T, property: keyof T, value: any): any {
-      // @ts-ignore
-      return (target[$gravelReactive] as ObservableObject).set(target, property, value);
-    },
-  });
+class ObjectHandlers<Target extends object> implements ProxyHandler<Target> {
+  get(target: Target, property: PropertyKey, receiver: any): TargetValue<Target> {
+    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).get(target, property);
+  }
+  set(target: Target, property: keyof Target, value: TargetValue<Target>): boolean {
+    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).set(target, property, value);
+  }
+  deleteProperty(target: Target, property: keyof Target): boolean {
+    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).deleteProperty(target, property);
+  }
+
+  getReactiveField(target: TargetWithReactiveSymbol<Target>): ObservableObject<any> {
+    return target[$gravelReactive];
+  }
+}
+function delegateProxy<Target extends object>(target: Target): Target {
+  return new Proxy(target, new ObjectHandlers());
 }
 
-//todo переписать, добавить функционал
-export function observableObject<T extends object>(target: T): T {
+export function observableObject<Target extends object>(target: Target): Target {
   defineProperty(target, $gravelReactive, {
     enumerable: false,
     configurable: false,
     writable: false,
-    value: new ObservableObject<T>(target),
+    value: new ObservableObject<Target>(target),
   });
 
   return delegateProxy(target);
