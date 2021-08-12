@@ -34,3 +34,17 @@ export function isPrimitive(arg: any): arg is string | number {
 export function toPrimitive(value: any) {
   return value === null ? null : typeof value === "object" ? "" + value : value;
 }
+
+type EntriesTuple<Target extends object> = [keyof Target, Target[keyof Target]];
+
+export function transformEach<Target extends object, NewObject extends object>(target: Target) {
+  return (predicate: (entries: EntriesTuple<Target>) => NewObject): NewObject => {
+    const newObject = {};
+
+    Object.entries(target).forEach(([key, value]) =>
+      Object.assign(newObject, predicate([key, value] as EntriesTuple<Target>)),
+    );
+
+    return newObject as NewObject;
+  };
+}
