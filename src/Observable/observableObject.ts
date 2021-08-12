@@ -47,7 +47,7 @@ function delegateProxy<T extends object>(target: T): T {
   });
 }
 
-//todo переписать, добавить функционал
+//todo обработать добавление нового значения
 export function observableObject<T extends object>(target: T): T {
   defineProperty(target, $gravelReactive, {
     enumerable: false,
