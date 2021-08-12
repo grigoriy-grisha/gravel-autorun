@@ -1,6 +1,6 @@
+import { ObservableValue } from "./Observable/observableValue";
 import { CommonlyConstructors } from "./types";
 
-export const fromEntries = Object.fromEntries;
 export const entries = Object.entries;
 
 export function is(Ctor: CommonlyConstructors, val: { constructor: any } | null) {
@@ -47,4 +47,12 @@ export function transformEach<Target extends object, NewObject extends object>(t
 
     return newObject as NewObject;
   };
+}
+
+export function hasProp(target: Object, prop: PropertyKey): boolean {
+  return Object.hasOwnProperty.call(target, prop);
+}
+
+export function isObservableValue(value: any) {
+  return value instanceof ObservableValue;
 }

@@ -1,6 +1,6 @@
 import defineProperty = Reflect.defineProperty;
 import { ObservableValue } from "./observableValue";
-import { transformEach } from "../utils";
+import { isObservableValue, transformEach } from "../utils";
 import { ObservableValues, TargetValue, TargetWithReactiveSymbol } from "../types";
 
 export const $gravelReactive = Symbol("gravelReactive");
@@ -19,18 +19,26 @@ export class ObservableObject<Target extends object> {
   set(target: Target, property: keyof Target, value: any): boolean {
     const observableValue = this._getValue(property);
     observableValue.set(value);
-    return true;
+    return Reflect.set(target, property, value);
   }
 
-  get(target: Target, property: keyof Target): TargetValue<Target> | Target {
+  get(target: Target, property: keyof Target): TargetValue<Target> | Target | undefined {
     const observableValue = this._getValue(property);
-    return observableValue.get();
+    const haveProp = observableValue && target[property];
+
+    if (haveProp && isObservableValue(observableValue)) return observableValue.get();
+
+    return Reflect.get(target, property);
   }
 
   deleteProperty(target: Target, property: keyof Target) {
     const observableValue = this._getValue(property);
-    observableValue._notifyObservers();
-    return Reflect.deleteProperty(target, property);
+    if (isObservableValue(observableValue)) observableValue._notifyObservers();
+
+    const valuesDeleted = Reflect.deleteProperty(this._values, property);
+    const originalDeleted = Reflect.deleteProperty(target, property);
+
+    return valuesDeleted && originalDeleted;
   }
 
   _getValue(property: keyof Target) {
