@@ -1,5 +1,5 @@
 import defineProperty = Reflect.defineProperty;
-import { ObservableValue } from "./observableValue";
+import { observableValue, ObservableValue } from "./observableValue";
 import { isObservableValue, transformEach } from "../utils";
 import { ObservableValues, TargetValue, TargetWithReactiveSymbol } from "../types";
 
@@ -18,7 +18,9 @@ export class ObservableObject<Target extends object> {
 
   set(target: Target, property: keyof Target, value: any): boolean {
     const observableValue = this._getValue(property);
-    observableValue.set(value);
+    if (observableValue) observableValue.set(value);
+    else this._setValue(property, value);
+
     return Reflect.set(target, property, value);
   }
 
@@ -43,6 +45,10 @@ export class ObservableObject<Target extends object> {
 
   _getValue(property: keyof Target) {
     return this._values[property];
+  }
+
+  _setValue(property: keyof Target, value: any) {
+    return (this._values[property] = observableValue(value));
   }
 }
 
