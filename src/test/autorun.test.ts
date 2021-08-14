@@ -75,4 +75,13 @@ describe("autorun", () => {
     observerObject.user.address = "changed";
     expect(callback).toBeCalledTimes(2);
   });
+
+  test("new values should be call autorun function", () => {
+    const observerObject = observableObject<any>({});
+    const callback = jest.fn(() => observerObject.user);
+    autorun(callback);
+
+    observerObject.user = "user";
+    expect(callback).toBeCalledTimes(2);
+  });
 });

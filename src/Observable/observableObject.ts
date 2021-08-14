@@ -2,6 +2,7 @@ import defineProperty = Reflect.defineProperty;
 import { observableValue, ObservableValue } from "./observableValue";
 import { isObservableValue, transformEach } from "../utils";
 import { ObservableValues, TargetValue, TargetWithReactiveSymbol } from "../types";
+import globalState from "../globalState";
 
 export const $gravelReactive = Symbol("gravelReactive");
 export class ObservableObject<Target extends object> {
@@ -26,9 +27,20 @@ export class ObservableObject<Target extends object> {
 
   get(target: Target, property: keyof Target): TargetValue<Target> | Target | undefined {
     const observableValue = this._getValue(property);
-    const haveProp = observableValue && target[property];
+    const haveProp = observableValue && Reflect.has(target, property);
 
-    if (haveProp && isObservableValue(observableValue)) return observableValue.get();
+    const executableCallback = globalState.getExecutableCallback();
+
+    if (executableCallback && !haveProp) {
+      Reflect.set(target, property, undefined);
+      this._setValue(property, undefined);
+    }
+
+    const observableValueOutExecutableCallback = this._getValue(property);
+    const havePropOutExecutableCallback = observableValueOutExecutableCallback && Reflect.has(target, property);
+
+    if (havePropOutExecutableCallback && isObservableValue(observableValueOutExecutableCallback))
+      return observableValueOutExecutableCallback.get();
 
     return Reflect.get(target, property);
   }
@@ -71,7 +83,6 @@ function delegateProxy<Target extends object>(target: Target): Target {
   return new Proxy(target, new ObjectHandlers());
 }
 
-//todo обработать добавление нового значения
 export function observableObject<Target extends object>(target: Target): Target {
   defineProperty(target, $gravelReactive, {
     enumerable: false,
