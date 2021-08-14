@@ -5,7 +5,7 @@ import globalState from "../globalState";
 import { AnyFunction } from "../types";
 
 export class ObservableValue<Value extends any> {
-  private readonly observers: AnyFunction[] = [];
+  private readonly observers: Set<AnyFunction> = new Set([]);
   constructor(private value: Value) {
     if (isPrimitive(value)) this.value = value;
     if (isPureObject(value)) this.value = observableObject(value);
@@ -27,11 +27,11 @@ export class ObservableValue<Value extends any> {
   }
 
   observe(callback: AnyFunction) {
-    this.observers.push(callback);
+    this.observers.add(callback);
   }
 
   unobserve(callback: AnyFunction) {
-    this.observers.splice(this.observers.indexOf(callback), 1);
+    this.observers.delete(callback);
   }
 
   toJSON() {
