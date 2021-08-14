@@ -1,8 +1,9 @@
-import { isPrimitive, isPureObject, toPrimitive } from "../utils";
+import { isPrimitive, isPureObject, isReaction, toPrimitive } from "../utils";
 import { observableObject } from "./observableObject";
 
 import globalState from "../globalState";
 import { AnyFunction } from "../types";
+import { Reaction } from "../Reaction";
 
 export class ObservableValue<Value extends any> {
   private readonly observers: Set<AnyFunction> = new Set([]);
@@ -26,12 +27,20 @@ export class ObservableValue<Value extends any> {
     return this.value;
   }
 
-  observe(callback: AnyFunction) {
-    this.observers.add(callback);
+  observe(observer: Reaction | AnyFunction) {
+    if (isReaction(observer)) {
+      this.observers.add((observer as Reaction).run);
+      return;
+    }
+    this.observers.add(observer as AnyFunction);
   }
 
-  unobserve(callback: AnyFunction) {
-    this.observers.delete(callback);
+  unobserve(observer: Reaction | AnyFunction) {
+    if (isReaction(observer)) {
+      this.observers.delete((observer as Reaction).run);
+      return;
+    }
+    this.observers.delete(observer as AnyFunction);
   }
 
   toJSON() {

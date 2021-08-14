@@ -1,13 +1,13 @@
-import { AnyFunction } from "./types";
+import { Reaction } from "./Reaction";
 
 class GlobalState {
-  private executableCallback: AnyFunction | null = null;
+  private executableCallback: Reaction | null = null;
 
   getExecutableCallback() {
     return this.executableCallback;
   }
 
-  setExecutableCallback(callback: AnyFunction) {
+  setExecutableCallback(callback: Reaction) {
     this.executableCallback = callback;
   }
 
