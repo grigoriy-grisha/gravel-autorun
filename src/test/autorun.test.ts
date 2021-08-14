@@ -80,7 +80,7 @@ describe("autorun", () => {
     let key = "name";
     const observerObject = observableObject<any>({});
     const callback = jest.fn(() => {
-      console.log(observerObject[key]);
+      observerObject[key];
       key = "age";
     });
     autorun(callback);
@@ -89,5 +89,37 @@ describe("autorun", () => {
     observerObject.age = 1;
 
     expect(callback).toBeCalledTimes(3);
+  });
+
+  test("for in iteration over on object", () => {
+    const observerObject = observableObject<any>({ name: "Ann", age: 1, street: "pushkin" });
+    const callback = jest.fn(() => {
+      for (const item in observerObject) {
+        observerObject[item];
+      }
+    });
+
+    autorun(callback);
+
+    observerObject.name = "Andrew";
+
+    expect(callback).toBeCalledTimes(2);
+  });
+
+  test("for in iteration set values", () => {
+    const observerObject = observableObject<any>({ name: "Ann", age: 1, street: "pushkin" });
+    const callback = jest.fn(() => {
+      for (const item in observerObject) {
+        observerObject[item];
+      }
+    });
+
+    autorun(callback);
+
+    for (const item in observerObject) {
+      observerObject[item] = "NEW";
+    }
+
+    expect(callback).toBeCalledTimes(4);
   });
 });

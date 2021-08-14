@@ -9,7 +9,7 @@ export class Reaction {
   run() {
     globalState.setExecutableCallback(this);
     try {
-      this.callback();
+      this.callback.apply(this);
     } catch (e) {
       console.log(e);
     }
