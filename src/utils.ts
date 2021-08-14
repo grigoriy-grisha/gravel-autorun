@@ -1,5 +1,6 @@
 import { ObservableValue } from "./Observable/observableValue";
 import { CommonlyConstructors } from "./types";
+import { Reaction } from "./Reaction";
 
 export const entries = Object.entries;
 
@@ -55,4 +56,8 @@ export function hasProp(target: Object, prop: PropertyKey): boolean {
 
 export function isObservableValue(value: any) {
   return value instanceof ObservableValue;
+}
+
+export function isReaction(value: any) {
+  return value instanceof Reaction;
 }

@@ -1,7 +1,8 @@
 import defineProperty = Reflect.defineProperty;
-import { ObservableValue } from "./observableValue";
+import { observableValue, ObservableValue } from "./observableValue";
 import { isObservableValue, transformEach } from "../utils";
 import { ObservableValues, TargetValue, TargetWithReactiveSymbol } from "../types";
+import globalState from "../globalState";
 
 export const $gravelReactive = Symbol("gravelReactive");
 export class ObservableObject<Target extends object> {
@@ -18,15 +19,28 @@ export class ObservableObject<Target extends object> {
 
   set(target: Target, property: keyof Target, value: any): boolean {
     const observableValue = this._getValue(property);
-    observableValue.set(value);
+    if (observableValue) observableValue.set(value);
+    else this._setValue(property, value);
+
     return Reflect.set(target, property, value);
   }
 
   get(target: Target, property: keyof Target): TargetValue<Target> | Target | undefined {
     const observableValue = this._getValue(property);
-    const haveProp = observableValue && target[property];
+    const haveProp = observableValue && Reflect.has(target, property);
 
-    if (haveProp && isObservableValue(observableValue)) return observableValue.get();
+    const executableCallback = globalState.getExecutableCallback();
+
+    if (executableCallback && !haveProp) {
+      Reflect.set(target, property, undefined);
+      this._setValue(property, undefined);
+    }
+
+    const observableValueOutExecutableCallback = this._getValue(property);
+    const havePropOutExecutableCallback = observableValueOutExecutableCallback && Reflect.has(target, property);
+
+    if (havePropOutExecutableCallback && isObservableValue(observableValueOutExecutableCallback))
+      return observableValueOutExecutableCallback.get();
 
     return Reflect.get(target, property);
   }
@@ -43,6 +57,10 @@ export class ObservableObject<Target extends object> {
 
   _getValue(property: keyof Target) {
     return this._values[property];
+  }
+
+  _setValue(property: keyof Target, value: any) {
+    return (this._values[property] = observableValue(value));
   }
 }
 
@@ -65,7 +83,6 @@ function delegateProxy<Target extends object>(target: Target): Target {
   return new Proxy(target, new ObjectHandlers());
 }
 
-//todo обработать добавление нового значения
 export function observableObject<Target extends object>(target: Target): Target {
   defineProperty(target, $gravelReactive, {
     enumerable: false,

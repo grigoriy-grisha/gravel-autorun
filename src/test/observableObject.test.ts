@@ -39,7 +39,7 @@ describe("observableObject", () => {
   });
 
   test("objects in ObservableObject should be changed", () => {
-    const observerObject = observableObject({
+    const observerObject = observableObject<any>({
       user: {
         name: "Andrew",
         address: {
@@ -48,13 +48,12 @@ describe("observableObject", () => {
       },
     });
 
-    // @ts-ignore
     observerObject.user.address = "changed";
     expect(observerObject.user.address).toBe("changed");
   });
 
   test("delete value has been success", () => {
-    const observerObject = observableObject({
+    const observerObject = observableObject<any>({
       user: {
         name: "Andrew",
         address: {
@@ -63,11 +62,17 @@ describe("observableObject", () => {
       },
     });
 
-    // @ts-ignore
     delete observerObject.user;
     expect(observerObject.user).toBe(undefined);
-    // @ts-ignore
     delete observerObject.user;
     expect(observerObject).toStrictEqual({});
+  });
+
+  test("set new value", () => {
+    const observerObject = observableObject<any>({});
+    observerObject.user = { name: "Ann" };
+    expect(observerObject.user).toStrictEqual({ name: "Ann" });
+    observerObject.user.name = "Andrew";
+    expect(observerObject.user.name).toBe("Andrew");
   });
 });

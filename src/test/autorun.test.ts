@@ -75,4 +75,19 @@ describe("autorun", () => {
     observerObject.user.address = "changed";
     expect(callback).toBeCalledTimes(2);
   });
+
+  test("dynamic values should be call autorun function", () => {
+    let key = "name";
+    const observerObject = observableObject<any>({});
+    const callback = jest.fn(() => {
+      console.log(observerObject[key]);
+      key = "age";
+    });
+    autorun(callback);
+
+    observerObject.name = "user";
+    observerObject.age = 1;
+
+    expect(callback).toBeCalledTimes(3);
+  });
 });
