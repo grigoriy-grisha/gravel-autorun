@@ -22,27 +22,27 @@ export class ObservableObject<Target extends object> {
     if (observableValue) observableValue.set(value);
     else this._setValue(property, value);
 
-    return Reflect.set(target, property, value);
+    return Reflect.set(this.target, property, value);
   }
 
   get(target: Target, property: keyof Target): TargetValue<Target> | Target | undefined {
     const observableValue = this._getValue(property);
-    const haveProp = observableValue && Reflect.has(target, property);
+    const haveProp = observableValue && Reflect.has(this.target, property);
 
     const executableCallback = globalState.getExecutableCallback();
 
     if (executableCallback && !haveProp) {
-      Reflect.set(target, property, undefined);
+      Reflect.set(this.target, property, undefined);
       this._setValue(property, undefined);
     }
 
     const observableValueOutExecutableCallback = this._getValue(property);
-    const havePropOutExecutableCallback = observableValueOutExecutableCallback && Reflect.has(target, property);
+    const havePropOutExecutableCallback = observableValueOutExecutableCallback && Reflect.has(this.target, property);
 
     if (havePropOutExecutableCallback && isObservableValue(observableValueOutExecutableCallback))
       return observableValueOutExecutableCallback.get();
 
-    return Reflect.get(target, property);
+    return Reflect.get(this.target, property);
   }
 
   deleteProperty(target: Target, property: keyof Target) {
@@ -50,7 +50,7 @@ export class ObservableObject<Target extends object> {
     if (isObservableValue(observableValue)) observableValue._notifyObservers();
 
     const valuesDeleted = Reflect.deleteProperty(this._values, property);
-    const originalDeleted = Reflect.deleteProperty(target, property);
+    const originalDeleted = Reflect.deleteProperty(this.target, property);
 
     return valuesDeleted && originalDeleted;
   }

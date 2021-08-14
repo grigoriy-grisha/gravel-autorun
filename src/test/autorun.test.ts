@@ -80,7 +80,7 @@ describe("autorun", () => {
     let key = "name";
     const observerObject = observableObject<any>({});
     const callback = jest.fn(() => {
-      console.log(observerObject[key]);
+      observerObject[key];
       key = "age";
     });
     autorun(callback);
