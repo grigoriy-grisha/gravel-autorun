@@ -5,6 +5,7 @@ import globalState from "../globalState";
 import { AnyFunction } from "../types";
 import { Reaction } from "../Reaction";
 
+//todo проверка на удаление свойств
 export class ObservableValue<Value extends any> {
   private readonly observers: Set<AnyFunction> = new Set([]);
   constructor(private value: Value) {
