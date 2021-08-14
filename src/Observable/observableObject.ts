@@ -55,6 +55,10 @@ export class ObservableObject<Target extends object> {
     return valuesDeleted && originalDeleted;
   }
 
+  ownKeys() {
+    return Reflect.ownKeys(this.target);
+  }
+
   _getValue(property: keyof Target) {
     return this._values[property];
   }
@@ -73,6 +77,10 @@ class ObjectHandlers<Target extends object> implements ProxyHandler<Target> {
   }
   deleteProperty(target: Target, property: keyof Target): boolean {
     return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).deleteProperty(target, property);
+  }
+
+  ownKeys(target: Target): any {
+    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).ownKeys();
   }
 
   getReactiveField(target: TargetWithReactiveSymbol<Target>): ObservableObject<any> {

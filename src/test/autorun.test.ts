@@ -90,4 +90,36 @@ describe("autorun", () => {
 
     expect(callback).toBeCalledTimes(3);
   });
+
+  test("for in iteration over on object", () => {
+    const observerObject = observableObject<any>({ name: "Ann", age: 1, street: "pushkin" });
+    const callback = jest.fn(() => {
+      for (const item in observerObject) {
+        observerObject[item];
+      }
+    });
+
+    autorun(callback);
+
+    observerObject.name = "Andrew";
+
+    expect(callback).toBeCalledTimes(2);
+  });
+
+  test("for in iteration set values", () => {
+    const observerObject = observableObject<any>({ name: "Ann", age: 1, street: "pushkin" });
+    const callback = jest.fn(() => {
+      for (const item in observerObject) {
+        observerObject[item];
+      }
+    });
+
+    autorun(callback);
+
+    for (const item in observerObject) {
+      observerObject[item] = "NEW";
+    }
+
+    expect(callback).toBeCalledTimes(4);
+  });
 });
