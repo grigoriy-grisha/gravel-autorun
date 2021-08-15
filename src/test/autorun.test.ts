@@ -122,4 +122,34 @@ describe("autorun", () => {
 
     expect(callback).toBeCalledTimes(4);
   });
+
+  test("defineProperty value has been reactie", () => {
+    const observerObject = observableObject<any>({});
+    Object.defineProperty(observerObject, "name", {
+      value: "Ann",
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    });
+
+    const callback = jest.fn(() => observerObject.name);
+    autorun(callback);
+
+    observerObject.name = 2;
+    expect(callback).toBeCalledTimes(2);
+  });
+
+  test("functions should be usually observable value ", () => {
+    const observerObject = observableObject<any>({
+      fn() {},
+    });
+
+    const callback = jest.fn(() => observerObject.fn);
+    autorun(callback);
+
+    expect(typeof observerObject.fn).toBe("function");
+    observerObject.fn = "Ann";
+    expect(callback).toBeCalledTimes(2);
+    expect(typeof observerObject.fn).toBe("string");
+  });
 });

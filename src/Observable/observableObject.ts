@@ -1,6 +1,6 @@
 import defineProperty = Reflect.defineProperty;
 import { observableValue, ObservableValue } from "./observableValue";
-import { isObservableValue, transformEach } from "../utils";
+import { invariant, isObservableValue, transformEach } from "../utils";
 import { ObservableValues, TargetValue, TargetWithReactiveSymbol } from "../types";
 import globalState from "../globalState";
 
@@ -55,6 +55,16 @@ export class ObservableObject<Target extends object> {
     return valuesDeleted && originalDeleted;
   }
 
+  defineProperty(target: Target, property: keyof Target, descriptor: PropertyDescriptor): boolean {
+    invariant(
+      Boolean(descriptor.configurable) || Boolean(descriptor.writable),
+      `Cannot make property "${property}" observable, it is not configurable and writable in the target object`,
+    );
+
+    this._setValue(property, descriptor.value);
+    return Reflect.defineProperty(this.target, property, descriptor);
+  }
+
   ownKeys() {
     return Reflect.ownKeys(this.target);
   }
@@ -72,15 +82,25 @@ class ObjectHandlers<Target extends object> implements ProxyHandler<Target> {
   get(target: Target, property: PropertyKey, receiver: any): TargetValue<Target> {
     return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).get(target, property);
   }
+
   set(target: Target, property: keyof Target, value: TargetValue<Target>): boolean {
     return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).set(target, property, value);
   }
+
   deleteProperty(target: Target, property: keyof Target): boolean {
     return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).deleteProperty(target, property);
   }
 
   ownKeys(target: Target): any {
     return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).ownKeys();
+  }
+
+  defineProperty(target: Target, property: PropertyKey, descriptor: PropertyDescriptor): boolean {
+    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).defineProperty(
+      target,
+      property,
+      descriptor,
+    );
   }
 
   getReactiveField(target: TargetWithReactiveSymbol<Target>): ObservableObject<any> {

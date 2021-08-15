@@ -1,10 +1,9 @@
 import { ObservableValue } from "./Observable/observableValue";
-import { CommonlyConstructors } from "./types";
 import { Reaction } from "./Reaction";
 
 export const entries = Object.entries;
 
-export function is(Ctor: CommonlyConstructors, val: { constructor: any } | null) {
+export function is(Ctor: any, val: { constructor: any } | null) {
   return (val != null && val.constructor === Ctor) || val instanceof Ctor;
 }
 
@@ -32,6 +31,14 @@ export function isPrimitive(arg: any): arg is string | number {
   return isString(arg) || isNumber(arg);
 }
 
+export function isObservableValue(arg: any) {
+  return is(ObservableValue, arg);
+}
+
+export function isReaction(arg: any) {
+  return is(Reaction, arg);
+}
+
 export function toPrimitive(value: any) {
   return value === null ? null : typeof value === "object" ? "" + value : value;
 }
@@ -54,10 +61,11 @@ export function hasProp(target: Object, prop: PropertyKey): boolean {
   return Object.hasOwnProperty.call(target, prop);
 }
 
-export function isObservableValue(value: any) {
-  return value instanceof ObservableValue;
+export function isPropertyConfigurable<Target extends object>(target: Target, property: keyof Target) {
+  const descriptor = Object.getOwnPropertyDescriptor(target, property);
+  return !descriptor || (descriptor.configurable !== false && descriptor.writable !== false);
 }
 
-export function isReaction(value: any) {
-  return value instanceof Reaction;
+export function invariant(check: boolean, message: string) {
+  if (!check) throw new Error("[$gravel-reactive] Invariant failed: " + message);
 }

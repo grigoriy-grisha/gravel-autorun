@@ -75,4 +75,42 @@ describe("observableObject", () => {
     observerObject.user.name = "Andrew";
     expect(observerObject.user.name).toBe("Andrew");
   });
+
+  test("defineProperty", () => {
+    const observerObject = observableObject<any>({});
+    Object.defineProperty(observerObject, "name", {
+      value: "Ann",
+      configurable: true,
+      writable: true,
+      enumerable: true,
+    });
+    expect(observerObject.name).toBe("Ann");
+  });
+
+  test("not configurable values should not be observable", () => {
+    const observerObject = observableObject<any>({});
+    try {
+      Object.defineProperty(observerObject, "name", {
+        value: "Ann",
+        writable: false,
+      });
+    } catch (e) {
+      expect(e.message).toBe(
+        `[$gravel-reactive] Invariant failed: Cannot make property "name" observable, it is not configurable and writable in the target object`,
+      );
+    }
+  });
+
+  test("functions should be usually observable value ", () => {
+    const observerObject = observableObject<any>({
+      fn() {},
+    });
+
+    expect(typeof observerObject.fn).toBe("function");
+
+    observerObject.fn = "Ann";
+
+    expect(observerObject.fn).toBe("Ann");
+    expect(typeof observerObject.fn).toBe("string");
+  });
 });
