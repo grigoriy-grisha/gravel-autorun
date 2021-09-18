@@ -1,7 +1,7 @@
 import { TargetValue, TargetWithReactiveSymbol } from "../../types";
-import { $gravelReactive, ObservableObject } from "../observableObject";
+import { ReactiveHandler } from "./reactiveHandler";
 
-export class ObjectHandlers<Target extends object> implements ProxyHandler<Target> {
+export class ObjectHandlers<Target extends object> extends ReactiveHandler<Target> implements ProxyHandler<Target> {
   get(target: Target, property: PropertyKey, receiver: any): TargetValue<Target> {
     return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).get(target, property);
   }
@@ -24,9 +24,5 @@ export class ObjectHandlers<Target extends object> implements ProxyHandler<Targe
       property,
       descriptor,
     );
-  }
-
-  private getReactiveField(target: TargetWithReactiveSymbol<Target>): ObservableObject<any> {
-    return target[$gravelReactive];
   }
 }
