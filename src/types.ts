@@ -12,6 +12,8 @@ export type CommonlyConstructors =
   | ArrayConstructor
   | ObjectConstructor;
 
+export type PrimitivesTypes = string | number | symbol;
+
 export type ObservableEntities<Target extends any> =
   | ObservableObject<Target extends object ? Target : object>
   | ObservableArray<Target extends Array<any> ? Target : Array<any>>;

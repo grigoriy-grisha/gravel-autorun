@@ -6,6 +6,7 @@ import globalState from "../globalState";
 import { Reaction } from "../Reaction";
 import { AnyFunction } from "../types";
 
+// todo добавить возмоность трансофрмироаться в обычные js значения
 //todo проверка на удаление свойств
 export class ObservableValue<Value extends any> {
   private readonly observers: Set<AnyFunction> = new Set([]);

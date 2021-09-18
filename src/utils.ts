@@ -71,3 +71,5 @@ export function invariant(check: boolean, message: string) {
 }
 
 export const objectRow = (key: string | number | symbol, value: any) => ({ [key]: value });
+
+export const propertyIsLength = (property: string | number | symbol) => property === "length";
