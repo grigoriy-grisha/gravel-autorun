@@ -68,4 +68,12 @@ describe("observableArray", () => {
     expect(observerArray[2]).toBe(undefined);
     expect(observerArray[3]).toBe(undefined);
   });
+
+  test("should get plain object", () => {
+    const array = [{ aboba: "sus" }];
+    const observerArray = observableArray(array);
+
+    console.log(observerArray);
+    expect(observerArray[0]).toStrictEqual(array[0]);
+  });
 });

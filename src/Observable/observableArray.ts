@@ -1,11 +1,11 @@
 import defineProperty = Reflect.defineProperty;
 import { $gravelReactive } from "../common/constants";
-import { ReactiveHandler } from "./handlers/reactiveHandler";
-import { AnyFunction, ObservableValues, PrimitivesTypes, TargetValue, TargetWithReactiveSymbol } from "../types";
-import { isObservableValue, isPrimitive, isReaction, propertyIsLength } from "../utils";
+import { AnyFunction, ObservableValues, PrimitivesTypes } from "../types";
+import { isObservableValue, isPrimitive, isReaction } from "../utils";
 import { observableValue, ObservableValue } from "./observableValue";
 import globalState from "../globalState";
 import { Reaction } from "../Reaction";
+import { ArrayHandlers } from "./handlers/arrayHandlers";
 
 //todo переписать, наблюдаемыми значениями могут быть только объекты и массивы
 export class ObservableArray<Target extends Array<any>> {
@@ -23,7 +23,9 @@ export class ObservableArray<Target extends Array<any>> {
     const executableCallback = globalState.getExecutableCallback();
     if (executableCallback) this.observe(executableCallback);
 
-    return Reflect.get(this.target, property);
+    const observableValue = this._getValue(property);
+    if (isObservableValue(observableValue)) return observableValue.get();
+    return observableValue;
   }
 
   private _notifyObservers() {
@@ -31,24 +33,20 @@ export class ObservableArray<Target extends Array<any>> {
   }
 
   set(target: Target, property: number, value: any): boolean {
-    const isSetSuccess = Reflect.set(this.target, property, value);
     try {
       this._notifyObservers();
     } catch (e) {
       console.log(e);
     }
 
-    const observableValue = this._getValue(property);
-    if (isObservableValue(observableValue)) observableValue.set(value);
-    else if (isPrimitive(observableValue)) this._setValue(property, value);
-
-    return isSetSuccess;
+    this._setValue(property, value);
+    return true;
   }
 
-  setLength(target: Target, property: "length", value: number) {
+  setLength(value: number) {
     if (this.target.length === value) return true;
     this._changeValuesLength(value);
-    const isSetSuccess = Reflect.set(this.target, property, value);
+    const isSetSuccess = Reflect.set(this.target, "length", value);
     this._notifyObservers();
     return isSetSuccess;
   }
@@ -69,6 +67,13 @@ export class ObservableArray<Target extends Array<any>> {
     this.observers.delete(observer as AnyFunction);
   }
 
+  spliceWithArray(index: number = 0, deleteCount: number = 0, newItems: any[] = []) {
+    const length = this._values.length;
+    if (index > length) index = length;
+
+    // const enhancerItems = ;
+  }
+
   _getValue(property: number) {
     return this._values[property];
   }
@@ -77,22 +82,27 @@ export class ObservableArray<Target extends Array<any>> {
     this._values.length = length;
   }
 
-  _setValue(property: number, value: any) {
-    //todo перезатирает ли это старые значения? нужно проверить
-    //todo нудна проверка на наличие того свойства
-    this._values[property] = observableValue(value);
-  }
-}
-//todo добавить обратботку всех методов массива
-export class ArrayHandlers<Target extends Array<any>> extends ReactiveHandler<Target> implements ProxyHandler<Target> {
-  get(target: Target, property: PropertyKey, receiver: any): TargetValue<Target> {
-    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).get(target, property);
+  _justSetValue(property: number, value: any) {
+    this._values[property] = value;
   }
 
-  set(target: Target, property: keyof Target, value: TargetValue<Target>): boolean {
-    const reactiveField = this.getReactiveField(target as TargetWithReactiveSymbol<Target>);
-    if (propertyIsLength(property)) return reactiveField.setLength(target, property, value);
-    return reactiveField.set(target, property, value);
+  _setObservableValue(property: number, value: any) {
+    //todo перезатирает ли это старые значения? нужно проверить
+    //todo нудна проверка на наличие этого свойства
+    this._values[property] = observableValue(value);
+  }
+
+  _setValue(property: number, value: any) {
+    //todo вынести в enhuncer
+    const observableValue = this._getValue(property);
+
+    if (isObservableValue(observableValue)) observableValue.set(value);
+    else if (!isPrimitive(observableValue)) this._setObservableValue(property, value);
+    else this._justSetValue(property, value);
+  }
+
+  _getValues() {
+    return this._values;
   }
 }
 
