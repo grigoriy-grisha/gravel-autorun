@@ -33,13 +33,8 @@ export class ObservableArray<Target extends Array<any>> {
   }
 
   set(target: Target, property: number, value: any): boolean {
-    try {
-      this._notifyObservers();
-    } catch (e) {
-      console.log(e);
-    }
-
     this._setValue(property, value);
+    this._notifyObservers();
     return true;
   }
 
