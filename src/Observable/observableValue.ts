@@ -1,16 +1,20 @@
-import { isPrimitive, isPureObject, isReaction, toPrimitive } from "../utils";
+import { isArray, isPrimitive, isPureObject, isReaction, toPrimitive } from "../utils";
 import { observableObject } from "./observableObject";
+import { observableArray } from "./observableArray";
 
 import globalState from "../globalState";
-import { AnyFunction } from "../types";
 import { Reaction } from "../Reaction";
+import { AnyFunction } from "../types";
 
+// todo добавить возмоность трансофрмироаться в обычные js значения
 //todo проверка на удаление свойств
 export class ObservableValue<Value extends any> {
   private readonly observers: Set<AnyFunction> = new Set([]);
   constructor(private value: Value) {
+    //todo вынести
     if (isPrimitive(value)) this.value = value;
     if (isPureObject(value)) this.value = observableObject(value);
+    if (isArray(value)) this.value = observableArray(value);
   }
 
   set(value: Value) {

@@ -63,7 +63,7 @@ describe("observableObject", () => {
     });
 
     delete observerObject.user;
-    expect(observerObject.user).toBe(undefined);
+    expect("user" in observerObject).toBe(false);
     delete observerObject.user;
     expect(observerObject).toStrictEqual({});
   });
@@ -101,7 +101,7 @@ describe("observableObject", () => {
     }
   });
 
-  test("functions should be usually observable value ", () => {
+  test("functions should be observable value ", () => {
     const observerObject = observableObject<any>({
       fn() {},
     });

@@ -1,5 +1,7 @@
-import { $gravelReactive, ObservableObject } from "./Observable/observableObject";
+import { ObservableObject } from "./Observable/observableObject";
 import { ObservableValue } from "./Observable/observableValue";
+import { ObservableArray } from "./Observable/observableArray";
+import { $gravelReactive } from "./common/constants";
 
 export type AnyFunction = (...args: any) => any;
 
@@ -10,13 +12,16 @@ export type CommonlyConstructors =
   | ArrayConstructor
   | ObjectConstructor;
 
-export type TargetWithReactiveSymbol<Target extends object> = {
-  [key in keyof Target]: Target[keyof Target];
-} &
-  ReactiveKey<Target>;
+export type PrimitivesTypes = string | number | symbol;
 
-export type ReactiveKey<Target extends object> = {
-  [$gravelReactive]: ObservableObject<Target>;
+export type ObservableEntities<Target extends any> =
+  | ObservableObject<Target extends object ? Target : object>
+  | ObservableArray<Target extends Array<any> ? Target : Array<any>>;
+
+export type TargetWithReactiveSymbol<Target extends any> = Target & ReactiveKey<Target>;
+
+export type ReactiveKey<Target extends any> = {
+  [$gravelReactive]: ObservableEntities<Target>;
 };
 
 export type TargetValue<Target extends object> = Target[keyof Target];

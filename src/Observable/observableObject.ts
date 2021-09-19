@@ -1,20 +1,24 @@
 import defineProperty = Reflect.defineProperty;
-import { observableValue, ObservableValue } from "./observableValue";
-import { invariant, isObservableValue, transformEach } from "../utils";
-import { ObservableValues, TargetValue, TargetWithReactiveSymbol } from "../types";
-import globalState from "../globalState";
 
-export const $gravelReactive = Symbol("gravelReactive");
+import { observableValue, ObservableValue } from "./observableValue";
+import { ObservableValues, TargetValue } from "../types";
+import { ObjectHandlers } from "./handlers/objectHandlers";
+
+import { invariant, isObservableValue, objectRow, transformEach } from "../utils";
+import globalState from "../globalState";
+import { $gravelReactive } from "../common/constants";
+
 export class ObservableObject<Target extends object> {
   private readonly _values: ObservableValues<Target> = {} as ObservableValues<Target>;
+
   static create<Target extends object>(target: Target): ObservableObject<Target> {
     return new ObservableObject(target);
   }
 
   constructor(private target: Target) {
-    this._values = transformEach(target)(([key, value]) => ({
-      [key]: new ObservableValue(value),
-    })) as ObservableValues<Target>;
+    this._values = transformEach(target)(([key, value]) =>
+      objectRow(key, new ObservableValue(value)),
+    ) as ObservableValues<Target>;
   }
 
   set(target: Target, property: keyof Target, value: any): boolean {
@@ -26,9 +30,7 @@ export class ObservableObject<Target extends object> {
   }
 
   get(target: Target, property: keyof Target): TargetValue<Target> | Target | undefined {
-    const observableValue = this._getValue(property);
-    const haveProp = observableValue && Reflect.has(this.target, property);
-
+    const haveProp = Reflect.has(this.target, property);
     const executableCallback = globalState.getExecutableCallback();
 
     if (executableCallback && !haveProp) {
@@ -78,35 +80,6 @@ export class ObservableObject<Target extends object> {
   }
 }
 
-class ObjectHandlers<Target extends object> implements ProxyHandler<Target> {
-  get(target: Target, property: PropertyKey, receiver: any): TargetValue<Target> {
-    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).get(target, property);
-  }
-
-  set(target: Target, property: keyof Target, value: TargetValue<Target>): boolean {
-    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).set(target, property, value);
-  }
-
-  deleteProperty(target: Target, property: keyof Target): boolean {
-    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).deleteProperty(target, property);
-  }
-
-  ownKeys(target: Target): any {
-    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).ownKeys();
-  }
-
-  defineProperty(target: Target, property: PropertyKey, descriptor: PropertyDescriptor): boolean {
-    return this.getReactiveField(target as TargetWithReactiveSymbol<Target>).defineProperty(
-      target,
-      property,
-      descriptor,
-    );
-  }
-
-  getReactiveField(target: TargetWithReactiveSymbol<Target>): ObservableObject<any> {
-    return target[$gravelReactive];
-  }
-}
 function delegateProxy<Target extends object>(target: Target): Target {
   return new Proxy(target, new ObjectHandlers());
 }

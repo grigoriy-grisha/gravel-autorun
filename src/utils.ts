@@ -69,3 +69,7 @@ export function isPropertyConfigurable<Target extends object>(target: Target, pr
 export function invariant(check: boolean, message: string) {
   if (!check) throw new Error("[$gravel-reactive] Invariant failed: " + message);
 }
+
+export const objectRow = (key: string | number | symbol, value: any) => ({ [key]: value });
+
+export const propertyIsLength = (property: string | number | symbol) => property === "length";
