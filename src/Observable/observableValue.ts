@@ -19,11 +19,7 @@ export class ObservableValue<Value extends any> {
 
   set(value: Value) {
     this.value = value;
-    try {
-      this._notifyObservers();
-    } catch (e) {
-      console.log(e);
-    }
+    this._notifyObservers();
   }
 
   get(): Value {

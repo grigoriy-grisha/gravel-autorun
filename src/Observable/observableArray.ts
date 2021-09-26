@@ -33,13 +33,8 @@ export class ObservableArray<Target extends Array<any>> {
   }
 
   set(target: Target, property: number, value: any): boolean {
-    try {
-      this._notifyObservers();
-    } catch (e) {
-      console.log(e);
-    }
-
     this._setValue(property, value);
+    this._notifyObservers();
     return true;
   }
 
@@ -69,9 +64,12 @@ export class ObservableArray<Target extends Array<any>> {
 
   spliceWithArray(index: number = 0, deleteCount: number = 0, newItems: any[] = []) {
     const length = this._values.length;
+    //todo посмотерть как могут изменться индексы в разных кейсах
     if (index > length) index = length;
 
-    // const enhancerItems = ;
+    newItems.forEach((item, index) => this._setValue(length + index, item));
+    //todo это делать в конце push и других методах массивов
+    this._notifyObservers();
   }
 
   _getValue(property: number) {
@@ -103,6 +101,10 @@ export class ObservableArray<Target extends Array<any>> {
 
   _getValues() {
     return this._values;
+  }
+
+  getLength() {
+    return this._values.length;
   }
 }
 
