@@ -53,7 +53,6 @@ describe("observableArray", () => {
 
     expect(observerArray.length).toBe(1);
     expect(observerArray[1]).toBe(undefined);
-    console.log(observerArray);
   });
 
   test("add empty values using force set length", () => {
@@ -73,7 +72,6 @@ describe("observableArray", () => {
     const array = [{ aboba: "sus" }];
     const observerArray = observableArray(array);
 
-    console.log(observerArray);
     expect(observerArray[0]).toStrictEqual(array[0]);
   });
 });

@@ -9,9 +9,10 @@ type ArrayMethods = typeof arrayMethods[ArrayMethodsNames];
 
 const arrayMethods = {
   push(...items: any[]): number {
+    //todo в конце делать notify
     const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
     internalReactiveInstance.spliceWithArray(internalReactiveInstance._getValues().length, 0, items);
-    return 0;
+    return internalReactiveInstance.getLength();
   },
 
   getReactiveInstance<Target extends Array<any>>() {
