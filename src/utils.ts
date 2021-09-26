@@ -3,6 +3,10 @@ import { Reaction } from "./Reaction";
 
 export const entries = Object.entries;
 
+export function isNil(arg: any) {
+  return arg == null;
+}
+
 export function is(Ctor: any, val: { constructor: any } | null) {
   return (val != null && val.constructor === Ctor) || val instanceof Ctor;
 }
@@ -27,8 +31,8 @@ export function isPureObject(arg: any): arg is Record<string, any> {
   return is(Object, arg) && !Array.isArray(arg);
 }
 
-export function isPrimitive(arg: any): arg is string | number {
-  return isString(arg) || isNumber(arg);
+export function isPrimitive(arg: any) {
+  return isNil(arg) || (!isPureObject(arg) && !isFunction(arg));
 }
 
 export function isObservableValue(arg: any) {
