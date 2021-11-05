@@ -116,4 +116,12 @@ describe("observableArray", () => {
     expect(observerArray.unshift(-1, 0)).toBe(6);
     expect(observerArray).toMatchObject([-1, 0, 1, 2, 3, 4]);
   });
+
+  test("array pop method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    expect(observerArray.pop()).toBe(4);
+    expect(observerArray).toMatchObject([1, 2, 3]);
+  });
 });

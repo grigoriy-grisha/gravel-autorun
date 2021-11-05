@@ -69,4 +69,15 @@ describe("autorunWithArray", () => {
     observerArray.unshift(0);
     expect(callback).toBeCalledTimes(2);
   });
+
+  test("array pop method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    const callback = jest.fn(() => observerArray[0]);
+    autorun(callback);
+
+    observerArray.pop();
+    expect(callback).toBeCalledTimes(2);
+  });
 });

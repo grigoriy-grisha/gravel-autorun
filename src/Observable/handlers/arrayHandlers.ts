@@ -25,6 +25,11 @@ const arrayMethods = {
     if (lengthArguments > 2) return internalReactiveInstance.spliceWithArray(start, deleteCount, ...items);
   },
 
+  pop() {
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    return internalReactiveInstance.spliceWithArray(Math.max(internalReactiveInstance.getLength() - 1, 0), 1)[0];
+  },
+
   shift() {
     const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
     return internalReactiveInstance.spliceWithArray(0, 1)[0];
