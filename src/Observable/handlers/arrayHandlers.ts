@@ -29,6 +29,12 @@ const arrayMethods = {
     const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
     return internalReactiveInstance.spliceWithArray(0, 1)[0];
   },
+
+  unshift(...items: any[]): number {
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    internalReactiveInstance.spliceWithArray(0, 0, ...items);
+    return internalReactiveInstance.getLength();
+  },
 };
 
 export class ArrayHandlers<Target extends Array<any>> extends ReactiveHandler<Target> implements ProxyHandler<Target> {

@@ -58,4 +58,15 @@ describe("autorunWithArray", () => {
     observerArray.shift();
     expect(callback).toBeCalledTimes(2);
   });
+
+  test("array unshift method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    const callback = jest.fn(() => observerArray[0]);
+    autorun(callback);
+
+    observerArray.unshift(0);
+    expect(callback).toBeCalledTimes(2);
+  });
 });
