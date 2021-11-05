@@ -143,4 +143,11 @@ describe("observableArray", () => {
     expect(observerArray.sort((a, b) => b - a)).toMatchObject([4, 3, 2, 1]);
     expect(observerArray).toMatchObject([4, 3, 2, 1]);
   });
+
+  test("array with JSONStringify", () => {
+    const array = [1, 2, 3, { a: "hello" }];
+    const observerArray = observableArray(array);
+
+    expect(JSON.stringify(observerArray)).toBe(`[1,2,3,{\"a\":\"hello\"}]`);
+  });
 });
