@@ -82,4 +82,19 @@ describe("observableArray", () => {
   //   observerArray.length = 4;
   //   expect(observerArray.length).toStrictEqual(4);
   // });
+
+  test("array splice method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    //@ts-ignore
+    expect(observerArray.splice()).toMatchObject([]);
+    expect(observerArray).toMatchObject([1, 2, 3, 4]);
+
+    expect(observerArray.splice(1, 1)).toMatchObject([2]);
+    expect(observerArray).toMatchObject([1, 3, 4]);
+
+    expect(observerArray.splice(1, 1, 228)).toMatchObject([3]);
+    expect(observerArray).toMatchObject([1, 228, 4]);
+  });
 });

@@ -9,14 +9,22 @@ type ArrayMethods = typeof arrayMethods[ArrayMethodsNames];
 
 const arrayMethods = {
   push(...items: any[]): number {
-    //todo в конце делать notify
     const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
     internalReactiveInstance.spliceWithArray(internalReactiveInstance._getValues().length, 0, items);
+    internalReactiveInstance.target.push(...items);
     return internalReactiveInstance.getLength();
   },
 
-  getReactiveInstance<Target extends Array<any>>() {
-    return (this as any)[$gravelReactive] as ObservableArray<Target>;
+  splice(start: number, deleteCount: number, ...items: any[]) {
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    const lengthArguments = arguments.length;
+
+    internalReactiveInstance.target.splice(start, deleteCount, ...items);
+
+    if (lengthArguments === 0) return [];
+    if (lengthArguments === 1) return internalReactiveInstance.spliceWithArray(start, 0, []);
+    if (lengthArguments === 2) return internalReactiveInstance.spliceWithArray(start, deleteCount, []);
+    if (lengthArguments > 2) return internalReactiveInstance.spliceWithArray(start, deleteCount, items);
   },
 };
 

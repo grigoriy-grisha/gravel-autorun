@@ -12,7 +12,7 @@ export class ObservableArray<Target extends Array<any>> {
   private readonly observers: Set<AnyFunction> = new Set([]);
   private readonly _values: ObservableValues<Target>[] | any[] = [];
 
-  constructor(private target: Target) {
+  constructor(public target: Target) {
     this._values = target.map((targetElement) => {
       if (isPrimitive(targetElement)) return targetElement;
       return new ObservableValue(targetElement);
@@ -28,7 +28,7 @@ export class ObservableArray<Target extends Array<any>> {
     return observableValue;
   }
 
-  private _notifyObservers() {
+  _notifyObservers() {
     this.observers.forEach((observer) => observer());
   }
 
@@ -63,13 +63,14 @@ export class ObservableArray<Target extends Array<any>> {
   }
 
   spliceWithArray(index: number = 0, deleteCount: number = 0, newItems: any[] = []) {
-    const length = this._values.length;
-    //todo посмотерть как могут изменться индексы в разных кейсах
-    if (index > length) index = length;
+    const enhuncersItems = newItems.map((item) => {
+      if (!isPrimitive(observableValue)) return observableValue(item);
+      return item;
+    });
 
-    newItems.forEach((item, index) => this._setValue(length + index, item));
-    //todo это делать в конце push и других методах массивов
+    const splicesValues = this._values.splice(index, deleteCount, ...enhuncersItems);
     this._notifyObservers();
+    return splicesValues;
   }
 
   _getValue(property: number) {
