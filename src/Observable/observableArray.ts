@@ -62,13 +62,28 @@ export class ObservableArray<Target extends Array<any>> {
     this.observers.delete(observer as AnyFunction);
   }
 
-  spliceWithArray(index: number = 0, deleteCount: number = 0, newItems: any[] = []) {
-    const enhuncersItems = newItems.map((item) => {
-      if (!isPrimitive(observableValue)) return observableValue(item);
+  spliceWithArray(start: number, deleteCount?: number, ...items: any[]) {
+    const enhuncersItems = items.map((item) => {
+      if (!isPrimitive(item)) return observableValue(item);
       return item;
     });
 
-    const splicesValues = this._values.splice(index, deleteCount, ...enhuncersItems);
+    const lengthArguments = arguments.length;
+    let splicesValues = [];
+
+    if (lengthArguments === 1) {
+      splicesValues = this._values.splice(start);
+      this.target.splice(start);
+    }
+    if (lengthArguments === 2) {
+      splicesValues = this._values.splice(start, deleteCount);
+      this.target.splice(start, deleteCount);
+    }
+    if (lengthArguments > 2) {
+      splicesValues = this._values.splice(start, deleteCount || 0, ...enhuncersItems);
+      this.target.splice(start, deleteCount || 0, ...items);
+    }
+
     this._notifyObservers();
     return splicesValues;
   }

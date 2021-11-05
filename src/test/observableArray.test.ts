@@ -96,5 +96,8 @@ describe("observableArray", () => {
 
     expect(observerArray.splice(1, 1, 228)).toMatchObject([3]);
     expect(observerArray).toMatchObject([1, 228, 4]);
+
+    expect(observerArray.splice(0)).toMatchObject([1, 228, 4]);
+    expect(observerArray).toMatchObject([]);
   });
 });

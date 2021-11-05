@@ -44,7 +44,8 @@ describe("autorunWithArray", () => {
     observerArray.splice();
     observerArray.splice(1, 1);
     observerArray.splice(1, 1, 228);
+    observerArray.splice(0);
 
-    expect(callback).toBeCalledTimes(3);
+    expect(callback).toBeCalledTimes(4);
   });
 });
