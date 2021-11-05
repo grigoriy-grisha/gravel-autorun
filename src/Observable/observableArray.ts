@@ -11,6 +11,7 @@ import { ArrayHandlers } from "./handlers/arrayHandlers";
 export class ObservableArray<Target extends Array<any>> {
   private readonly observers: Set<AnyFunction> = new Set([]);
   private readonly _values: ObservableValues<Target>[] | any[] = [];
+  public $$observable$$ = true;
 
   constructor(public target: Target) {
     this._values = target.map((targetElement) => {
@@ -25,7 +26,7 @@ export class ObservableArray<Target extends Array<any>> {
 
     const observableValue = this._getValue(property);
     if (isObservableValue(observableValue)) return observableValue.get();
-    return observableValue;
+    return Reflect.get(this.target, property);
   }
 
   _notifyObservers() {

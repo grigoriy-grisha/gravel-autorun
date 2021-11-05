@@ -40,6 +40,34 @@ const arrayMethods = {
     internalReactiveInstance.spliceWithArray(0, 0, ...items);
     return internalReactiveInstance.getLength();
   },
+
+  //todo нужны тесты для autorun
+  reverse() {
+    //todo тут нужно выплевывать исклчючение
+
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    internalReactiveInstance.spliceWithArray(
+      0,
+      internalReactiveInstance.getLength(),
+      ...internalReactiveInstance.target.reverse(),
+    );
+
+    return internalReactiveInstance.target;
+  },
+
+  //todo нужны тесты для autorun
+  sort(): any[] {
+    //todo тут нужно выплевывать исклчючение
+
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    [].sort.apply(internalReactiveInstance.target, arguments as any);
+    internalReactiveInstance.spliceWithArray(
+      0,
+      internalReactiveInstance.getLength(),
+      ...internalReactiveInstance.target,
+    );
+    return internalReactiveInstance.target;
+  },
 };
 
 export class ArrayHandlers<Target extends Array<any>> extends ReactiveHandler<Target> implements ProxyHandler<Target> {

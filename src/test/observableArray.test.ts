@@ -72,7 +72,7 @@ describe("observableArray", () => {
     const array = [{ aboba: "sus" }];
     const observerArray = observableArray(array);
 
-    expect(observerArray[0]).toStrictEqual(array[0]);
+    expect(observerArray[0]).toStrictEqual({ aboba: "sus" });
   });
 
   //todo обработать этот кейс
@@ -123,5 +123,24 @@ describe("observableArray", () => {
 
     expect(observerArray.pop()).toBe(4);
     expect(observerArray).toMatchObject([1, 2, 3]);
+  });
+
+  test("array reverse method", () => {
+    const array = [1, 2, 3, { a: "hello" }];
+    const observerArray = observableArray(array);
+
+    expect(observerArray.reverse()).toMatchObject([{ a: "hello" }, 3, 2, 1]);
+    expect(observerArray).toMatchObject([{ a: "hello" }, 3, 2, 1]);
+  });
+
+  test("array sort method", () => {
+    const array = [4, 3, 2, 1];
+    const observerArray = observableArray(array);
+
+    expect(observerArray.sort()).toMatchObject([1, 2, 3, 4]);
+    expect(observerArray).toMatchObject([1, 2, 3, 4]);
+
+    expect(observerArray.sort((a, b) => b - a)).toMatchObject([4, 3, 2, 1]);
+    expect(observerArray).toMatchObject([4, 3, 2, 1]);
   });
 });

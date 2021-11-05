@@ -36,11 +36,16 @@ export function isPrimitive(arg: any) {
 }
 
 export function isObservableValue(arg: any) {
-  return is(ObservableValue, arg);
+  return is(ObservableValue, arg) || isObservable(arg);
 }
 
 export function isReaction(arg: any) {
   return is(Reaction, arg);
+}
+
+export function isObservable(arg: any) {
+  if (isNil(arg)) return false;
+  return arg.$$observable$$;
 }
 
 export function toPrimitive(value: any) {
