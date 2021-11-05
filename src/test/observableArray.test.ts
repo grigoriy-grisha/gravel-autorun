@@ -100,4 +100,12 @@ describe("observableArray", () => {
     expect(observerArray.splice(0)).toMatchObject([1, 228, 4]);
     expect(observerArray).toMatchObject([]);
   });
+
+  test("array shift method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    expect(observerArray.shift()).toBe(1);
+    expect(observerArray).toMatchObject([2, 3, 4]);
+  });
 });

@@ -37,7 +37,6 @@ describe("autorunWithArray", () => {
     const observerArray = observableArray(array);
 
     const callback = jest.fn(() => observerArray[0]);
-
     autorun(callback);
 
     //@ts-ignore
@@ -47,5 +46,16 @@ describe("autorunWithArray", () => {
     observerArray.splice(0);
 
     expect(callback).toBeCalledTimes(4);
+  });
+
+  test("array shift method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    const callback = jest.fn(() => observerArray[0]);
+    autorun(callback);
+
+    observerArray.shift();
+    expect(callback).toBeCalledTimes(2);
   });
 });

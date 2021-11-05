@@ -24,6 +24,11 @@ const arrayMethods = {
     if (lengthArguments === 2) return internalReactiveInstance.spliceWithArray(start, deleteCount);
     if (lengthArguments > 2) return internalReactiveInstance.spliceWithArray(start, deleteCount, ...items);
   },
+
+  shift() {
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    return internalReactiveInstance.spliceWithArray(0, 1)[0];
+  },
 };
 
 export class ArrayHandlers<Target extends Array<any>> extends ReactiveHandler<Target> implements ProxyHandler<Target> {
