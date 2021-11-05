@@ -11,7 +11,6 @@ const arrayMethods = {
   push(...items: any[]): number {
     const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
     internalReactiveInstance.spliceWithArray(internalReactiveInstance._getValues().length, 0, ...items);
-    internalReactiveInstance.target.push(...items);
     return internalReactiveInstance.getLength();
   },
 

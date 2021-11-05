@@ -32,7 +32,7 @@ export function isPureObject(arg: any): arg is Record<string, any> {
 }
 
 export function isPrimitive(arg: any) {
-  return isNil(arg) || (!isPureObject(arg) && !isFunction(arg));
+  return !isPureObject(arg) && !isFunction(arg) && !isArray(arg);
 }
 
 export function isObservableValue(arg: any) {

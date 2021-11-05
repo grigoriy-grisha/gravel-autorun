@@ -34,8 +34,7 @@ export class ObservableArray<Target extends Array<any>> {
   }
 
   set(target: Target, property: number, value: any): boolean {
-    this._setValue(property, value);
-    this._notifyObservers();
+    this.spliceWithArray(property, 0, value);
     return true;
   }
 
@@ -95,25 +94,6 @@ export class ObservableArray<Target extends Array<any>> {
 
   _changeValuesLength(length: number) {
     this._values.length = length;
-  }
-
-  _justSetValue(property: number, value: any) {
-    this._values[property] = value;
-  }
-
-  _setObservableValue(property: number, value: any) {
-    //todo перезатирает ли это старые значения? нужно проверить
-    //todo нудна проверка на наличие этого свойства
-    this._values[property] = observableValue(value);
-  }
-
-  _setValue(property: number, value: any) {
-    //todo вынести в enhuncer
-    const observableValue = this._getValue(property);
-
-    if (isObservableValue(observableValue)) observableValue.set(value);
-    else if (!isPrimitive(observableValue)) this._setObservableValue(property, value);
-    else this._justSetValue(property, value);
   }
 
   _getValues() {
