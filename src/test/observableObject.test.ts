@@ -95,6 +95,7 @@ describe("observableObject", () => {
         writable: false,
       });
     } catch (e) {
+      //todo вынести
       expect(e.message).toBe(
         `[$gravel-reactive] Invariant failed: Cannot make property "name" observable, it is not configurable and writable in the target object`,
       );
@@ -112,5 +113,21 @@ describe("observableObject", () => {
 
     expect(observerObject.fn).toBe("Ann");
     expect(typeof observerObject.fn).toBe("string");
+  });
+
+  test("observableObject with JSONStringify", () => {
+    const observerObject = observableObject({
+      model: {
+        office: {
+          dealer: {
+            location: {
+              street: "Pushkin",
+            },
+          },
+        },
+      },
+    });
+
+    expect(JSON.stringify(observerObject)).toBe('{"model":{"office":{"dealer":{"location":{"street":"Pushkin"}}}}}');
   });
 });

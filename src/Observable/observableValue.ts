@@ -1,4 +1,4 @@
-import { isArray, isPrimitive, isPureObject, isReaction, toPrimitive } from "../utils";
+import { isArray, isObservable, isPrimitive, isPureObject, isReaction, toPrimitive } from "../utils";
 import { observableObject } from "./observableObject";
 import { observableArray } from "./observableArray";
 
@@ -10,11 +10,24 @@ import { AnyFunction } from "../types";
 //todo проверка на удаление свойств
 export class ObservableValue<Value extends any> {
   private readonly observers: Set<AnyFunction> = new Set([]);
+  public $$observable$$ = true;
   constructor(private value: Value) {
-    //todo вынести
-    if (isPrimitive(value)) this.value = value;
-    if (isPureObject(value)) this.value = observableObject(value);
-    if (isArray(value)) this.value = observableArray(value);
+    if (isObservable(value)) {
+      this.value = value;
+      return;
+    }
+    if (isPrimitive(value)) {
+      this.value = value;
+      return;
+    }
+    if (isPureObject(value)) {
+      this.value = observableObject(value);
+      return;
+    }
+    if (isArray(value)) {
+      this.value = observableArray(value);
+      return;
+    }
   }
 
   set(value: Value) {

@@ -10,6 +10,7 @@ import { $gravelReactive } from "../common/constants";
 
 export class ObservableObject<Target extends object> {
   private readonly _values: ObservableValues<Target> = {} as ObservableValues<Target>;
+  public $$observable$$ = true;
 
   static create<Target extends object>(target: Target): ObservableObject<Target> {
     return new ObservableObject(target);
@@ -60,7 +61,7 @@ export class ObservableObject<Target extends object> {
   defineProperty(target: Target, property: keyof Target, descriptor: PropertyDescriptor): boolean {
     invariant(
       Boolean(descriptor.configurable) || Boolean(descriptor.writable),
-      `Cannot make property "${property}" observable, it is not configurable and writable in the target object`,
+      `Cannot make property "${property.toString()}" observable, it is not configurable and writable in the target object`,
     );
 
     this._setValue(property, descriptor.value);

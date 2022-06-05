@@ -139,4 +139,17 @@ describe("autorunWithObject", () => {
     expect(callback).toBeCalledTimes(2);
     expect(typeof observerObject.fn).toBe("string");
   });
+
+  test("nested observableObject with array", () => {
+    const observerObject = observableObject({
+      name: "Andrew",
+      coords: [42.228, 35.1337],
+    });
+
+    const callback = jest.fn(() => observerObject.coords[0]);
+    autorun(callback);
+
+    observerObject.coords[0] = 42;
+    expect(callback).toBeCalledTimes(2);
+  });
 });

@@ -11,8 +11,9 @@ import { ArrayHandlers } from "./handlers/arrayHandlers";
 export class ObservableArray<Target extends Array<any>> {
   private readonly observers: Set<AnyFunction> = new Set([]);
   private readonly _values: ObservableValues<Target>[] | any[] = [];
+  public $$observable$$ = true;
 
-  constructor(private target: Target) {
+  constructor(public target: Target) {
     this._values = target.map((targetElement) => {
       if (isPrimitive(targetElement)) return targetElement;
       return new ObservableValue(targetElement);
@@ -25,16 +26,15 @@ export class ObservableArray<Target extends Array<any>> {
 
     const observableValue = this._getValue(property);
     if (isObservableValue(observableValue)) return observableValue.get();
-    return observableValue;
+    return Reflect.get(this.target, property);
   }
 
-  private _notifyObservers() {
+  _notifyObservers() {
     this.observers.forEach((observer) => observer());
   }
 
   set(target: Target, property: number, value: any): boolean {
-    this._setValue(property, value);
-    this._notifyObservers();
+    this.spliceWithArray(property, 0, value);
     return true;
   }
 
@@ -62,14 +62,30 @@ export class ObservableArray<Target extends Array<any>> {
     this.observers.delete(observer as AnyFunction);
   }
 
-  spliceWithArray(index: number = 0, deleteCount: number = 0, newItems: any[] = []) {
-    const length = this._values.length;
-    //todo посмотерть как могут изменться индексы в разных кейсах
-    if (index > length) index = length;
+  spliceWithArray(start: number, deleteCount?: number, ...items: any[]) {
+    const enhuncersItems = items.map((item) => {
+      if (!isPrimitive(item)) return observableValue(item);
+      return item;
+    });
 
-    newItems.forEach((item, index) => this._setValue(length + index, item));
-    //todo это делать в конце push и других методах массивов
+    const lengthArguments = arguments.length;
+    let splicesValues = [];
+
+    if (lengthArguments === 1) {
+      splicesValues = this._values.splice(start);
+      this.target.splice(start);
+    }
+    if (lengthArguments === 2) {
+      splicesValues = this._values.splice(start, deleteCount);
+      this.target.splice(start, deleteCount);
+    }
+    if (lengthArguments > 2) {
+      splicesValues = this._values.splice(start, deleteCount || 0, ...enhuncersItems);
+      this.target.splice(start, deleteCount || 0, ...items);
+    }
+
     this._notifyObservers();
+    return splicesValues;
   }
 
   _getValue(property: number) {
@@ -78,25 +94,6 @@ export class ObservableArray<Target extends Array<any>> {
 
   _changeValuesLength(length: number) {
     this._values.length = length;
-  }
-
-  _justSetValue(property: number, value: any) {
-    this._values[property] = value;
-  }
-
-  _setObservableValue(property: number, value: any) {
-    //todo перезатирает ли это старые значения? нужно проверить
-    //todo нудна проверка на наличие этого свойства
-    this._values[property] = observableValue(value);
-  }
-
-  _setValue(property: number, value: any) {
-    //todo вынести в enhuncer
-    const observableValue = this._getValue(property);
-
-    if (isObservableValue(observableValue)) observableValue.set(value);
-    else if (!isPrimitive(observableValue)) this._setObservableValue(property, value);
-    else this._justSetValue(property, value);
   }
 
   _getValues() {

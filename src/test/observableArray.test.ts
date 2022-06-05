@@ -72,7 +72,7 @@ describe("observableArray", () => {
     const array = [{ aboba: "sus" }];
     const observerArray = observableArray(array);
 
-    expect(observerArray[0]).toStrictEqual(array[0]);
+    expect(observerArray[0]).toStrictEqual({ aboba: "sus" });
   });
 
   //todo обработать этот кейс
@@ -82,4 +82,72 @@ describe("observableArray", () => {
   //   observerArray.length = 4;
   //   expect(observerArray.length).toStrictEqual(4);
   // });
+
+  test("array splice method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    //@ts-ignore
+    expect(observerArray.splice()).toMatchObject([]);
+    expect(observerArray).toMatchObject([1, 2, 3, 4]);
+
+    expect(observerArray.splice(1, 1)).toMatchObject([2]);
+    expect(observerArray).toMatchObject([1, 3, 4]);
+
+    expect(observerArray.splice(1, 1, 228)).toMatchObject([3]);
+    expect(observerArray).toMatchObject([1, 228, 4]);
+
+    expect(observerArray.splice(0)).toMatchObject([1, 228, 4]);
+    expect(observerArray).toMatchObject([]);
+  });
+
+  test("array shift method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    expect(observerArray.shift()).toBe(1);
+    expect(observerArray).toMatchObject([2, 3, 4]);
+  });
+
+  test("array unshift method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    expect(observerArray.unshift(-1, 0)).toBe(6);
+    expect(observerArray).toMatchObject([-1, 0, 1, 2, 3, 4]);
+  });
+
+  test("array pop method", () => {
+    const array = [1, 2, 3, 4];
+    const observerArray = observableArray(array);
+
+    expect(observerArray.pop()).toBe(4);
+    expect(observerArray).toMatchObject([1, 2, 3]);
+  });
+
+  test("array reverse method", () => {
+    const array = [1, 2, 3, { a: "hello" }];
+    const observerArray = observableArray(array);
+
+    expect(observerArray.reverse()).toMatchObject([{ a: "hello" }, 3, 2, 1]);
+    expect(observerArray).toMatchObject([{ a: "hello" }, 3, 2, 1]);
+  });
+
+  test("array sort method", () => {
+    const array = [4, 3, 2, 1];
+    const observerArray = observableArray(array);
+
+    expect(observerArray.sort()).toMatchObject([1, 2, 3, 4]);
+    expect(observerArray).toMatchObject([1, 2, 3, 4]);
+
+    expect(observerArray.sort((a, b) => b - a)).toMatchObject([4, 3, 2, 1]);
+    expect(observerArray).toMatchObject([4, 3, 2, 1]);
+  });
+
+  test("array with JSONStringify", () => {
+    const array = [1, 2, 3, { a: "hello" }];
+    const observerArray = observableArray(array);
+
+    expect(JSON.stringify(observerArray)).toBe(`[1,2,3,{\"a\":\"hello\"}]`);
+  });
 });

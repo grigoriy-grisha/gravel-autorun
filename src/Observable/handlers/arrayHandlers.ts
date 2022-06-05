@@ -9,14 +9,63 @@ type ArrayMethods = typeof arrayMethods[ArrayMethodsNames];
 
 const arrayMethods = {
   push(...items: any[]): number {
-    //todo в конце делать notify
     const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
-    internalReactiveInstance.spliceWithArray(internalReactiveInstance._getValues().length, 0, items);
+    internalReactiveInstance.spliceWithArray(internalReactiveInstance._getValues().length, 0, ...items);
     return internalReactiveInstance.getLength();
   },
 
-  getReactiveInstance<Target extends Array<any>>() {
-    return (this as any)[$gravelReactive] as ObservableArray<Target>;
+  splice(start: number, deleteCount: number, ...items: any[]) {
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    const lengthArguments = arguments.length;
+
+    if (lengthArguments === 0) return [];
+    if (lengthArguments === 1) return internalReactiveInstance.spliceWithArray(start);
+    if (lengthArguments === 2) return internalReactiveInstance.spliceWithArray(start, deleteCount);
+    if (lengthArguments > 2) return internalReactiveInstance.spliceWithArray(start, deleteCount, ...items);
+  },
+
+  pop() {
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    return internalReactiveInstance.spliceWithArray(Math.max(internalReactiveInstance.getLength() - 1, 0), 1)[0];
+  },
+
+  shift() {
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    return internalReactiveInstance.spliceWithArray(0, 1)[0];
+  },
+
+  unshift(...items: any[]): number {
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    internalReactiveInstance.spliceWithArray(0, 0, ...items);
+    return internalReactiveInstance.getLength();
+  },
+
+  //todo нужны тесты для autorun
+  reverse() {
+    //todo тут нужно выплевывать исклчючение
+
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    internalReactiveInstance.spliceWithArray(
+      0,
+      internalReactiveInstance.getLength(),
+      ...internalReactiveInstance.target.reverse(),
+    );
+
+    return internalReactiveInstance.target;
+  },
+
+  //todo нужны тесты для autorun
+  sort(): any[] {
+    //todo тут нужно выплевывать исклчючение
+
+    const internalReactiveInstance = (this as any)[$gravelReactive] as ObservableArray<any>;
+    [].sort.apply(internalReactiveInstance.target, arguments as any);
+    internalReactiveInstance.spliceWithArray(
+      0,
+      internalReactiveInstance.getLength(),
+      ...internalReactiveInstance.target,
+    );
+    return internalReactiveInstance.target;
   },
 };
 
